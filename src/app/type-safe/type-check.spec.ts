@@ -4,28 +4,28 @@ import { userProfileResources } from './user-profile.resources';
 import type { UserProfileResourceInputs, UserResource } from './user-profile.resources';
 import type { User } from '../user.service';
 
-// このファイルは型検査のためのケースを並べる。ケースは実行しない。
+// This file lists cases for type checking. The cases are not run.
 
-// (a) リソース宣言の名前を間違えると satisfies がエラーにする
-// 宣言型は export されていないので、インプット型のキーから同じ形の型を組み立てる
+// (a) satisfies reports an error when a resource declaration name is misspelled
+// The declared type is not exported, so build a type of the same shape from the input type keys
 type DeclaredResources = { [K in keyof UserProfileResourceInputs]: UserResource };
 
 export const misspelledResources = (user: UserResource) =>
   ({
     user,
-    // @ts-expect-error `userResource` ではなく `userResrouce` と綴りを間違えている
+    // @ts-expect-error misspelled as `userResrouce` instead of `userResource`
     userResrouce: user,
   }) satisfies DeclaredResources;
 
-// (b) コンポーネント側の不一致は implements がエラーにする
+// (b) implements reports an error when the component side does not match
 @Component({ template: '' })
-// @ts-expect-error `userResource` を宣言し忘れている
+// @ts-expect-error `userResource` is not declared
 export class MissingInput implements UserProfileResourceInputs {
   readonly user = input.required<User | undefined>();
 }
 
 @Component({ template: '' })
-// @ts-expect-error `userResource` を別の名前にしている
+// @ts-expect-error `userResource` is declared under a different name
 export class WrongName implements UserProfileResourceInputs {
   readonly user = input.required<User | undefined>();
   readonly userRes = input.required<UserResource>();
@@ -34,18 +34,18 @@ export class WrongName implements UserProfileResourceInputs {
 @Component({ template: '' })
 export class WrongType implements UserProfileResourceInputs {
   readonly user = input.required<User | undefined>();
-  // @ts-expect-error `userResource` の型が違う (リソースではなく値を受け取っている)
+  // @ts-expect-error `userResource` has the wrong type (it receives a value, not a resource)
   readonly userResource = input.required<User | undefined>();
 }
 
-// (c) alias を付けても implements は通る (検出できない)
+// (c) implements still passes when an alias is set (this cannot be detected)
 @Component({ template: '' })
 export class Aliased implements UserProfileResourceInputs {
   readonly user = input.required<User | undefined>();
   readonly userResource = input.required<UserResource>({ alias: 'other' });
 }
 
-// (d) userProfileResources を使うルートに別のコンポーネントを指定しても通る (検出できない)
+// (d) a different component on a route using userProfileResources still passes (this cannot be detected)
 @Component({ template: '' })
 export class Unrelated {}
 
@@ -57,6 +57,6 @@ export const mismatchedComponent: Routes = [
   },
 ];
 
-it('型検査のケースを読み込める', () => {
+it('can load the type-check cases', () => {
   expect(misspelledResources).toBeDefined();
 });

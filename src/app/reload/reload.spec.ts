@@ -43,7 +43,7 @@ describe('reload', () => {
   }
 
   for (const variant of ['blocking', 'non-blocking']) {
-    it(`${variant}: Save は saveUser の完了後に getUsers を再実行し、NavigationStart を起こさずサーバー側の最新の一覧を表示する`, async () => {
+    it(`${variant}: Save re-runs getUsers after saveUser completes and shows the latest server list without a NavigationStart`, async () => {
       const userService = TestBed.inject(UserService);
       const getUsers = vi.spyOn(userService, 'getUsers');
       const saveUser = vi.spyOn(userService, 'saveUser');
@@ -55,7 +55,7 @@ describe('reload', () => {
       expect(getUsers).toHaveBeenCalledTimes(1);
       expect(inputs(harness).map((i) => i.value)).toEqual(['Alice', 'Bob', 'Alicia']);
 
-      // 一覧の表示とは別に、サーバー側で Bob の名前が変わっている
+      // Separately from the displayed list, Bob's name is changed on the server
       const serverSideUpdate = userService.saveUser({ id: '2', name: 'Robert' });
       await vi.advanceTimersByTimeAsync(201);
       await serverSideUpdate;

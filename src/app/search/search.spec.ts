@@ -32,7 +32,7 @@ describe('search', () => {
     harness.detectChanges();
   }
 
-  it('q が変わると searchUsers が再び呼ばれる', async () => {
+  it('calls searchUsers again when q changes', async () => {
     const searchUsers = vi.spyOn(TestBed.inject(UserService), 'searchUsers');
     const harness = await RouterTestingHarness.create();
     await harness.navigateByUrl('/search/users?q=ali');
@@ -47,7 +47,7 @@ describe('search', () => {
     expect(harness.routeNativeElement?.textContent).toContain('Bob');
   });
 
-  it('q を保ったまま view だけが変わっても searchUsers は呼ばれない', async () => {
+  it('does not call searchUsers again when only view changes while q stays the same', async () => {
     const searchUsers = vi.spyOn(TestBed.inject(UserService), 'searchUsers');
     const harness = await RouterTestingHarness.create();
     await harness.navigateByUrl('/search/users?q=ali');
@@ -59,7 +59,7 @@ describe('search', () => {
     expect(searchUsers).toHaveBeenCalledTimes(1);
   });
 
-  it('入力欄に検索語を入れて Search を押すと、q がその検索語になる', async () => {
+  it('sets q to the entered term when Search is clicked after typing in the input', async () => {
     const harness = await RouterTestingHarness.create();
     await harness.navigateByUrl('/search/users?q=ali');
     await settle(harness);

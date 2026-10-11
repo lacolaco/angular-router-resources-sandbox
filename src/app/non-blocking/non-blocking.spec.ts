@@ -21,7 +21,7 @@ describe('non-blocking', () => {
     vi.useRealTimers();
   });
 
-  it('遷移は即座に完了して Loading... を表示し、200ms 後にユーザーを表示する', async () => {
+  it('completes navigation immediately showing Loading..., then shows the user after 200ms', async () => {
     const harness = await RouterTestingHarness.create();
     await harness.navigateByUrl('/non-blocking/users/1');
     harness.detectChanges();

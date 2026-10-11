@@ -21,7 +21,7 @@ describe('blocking', () => {
     vi.useRealTimers();
   });
 
-  it('リソースの解決まで遷移が完了せず、完了後にユーザー名が表示される', async () => {
+  it('does not complete navigation until the resource resolves, then shows the user name', async () => {
     const harness = await RouterTestingHarness.create();
     let done = false;
     const navigation = harness.navigateByUrl('/blocking/users/1').then(() => (done = true));

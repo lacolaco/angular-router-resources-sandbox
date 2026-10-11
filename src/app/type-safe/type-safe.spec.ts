@@ -30,7 +30,7 @@ describe('type-safe', () => {
     });
   }
 
-  it('(e) ブロッキングな user の取得完了までは遷移せず、完了時には user の ID と userResource の名前の両方が表示される', async () => {
+  it('(e) does not navigate until the blocking user fetch completes, then shows both the user ID and the userResource name', async () => {
     setup([{ path: 'type-safe', children: routes }]);
     const harness = await RouterTestingHarness.create();
     let navigated = false;
@@ -44,12 +44,12 @@ describe('type-safe', () => {
     harness.detectChanges();
     const text = harness.routeNativeElement?.textContent;
     expect(text).toContain('ID: 1');
-    // 2 つのリソースは並行して読み込まれ、同じ 200ms で完了するため、Loading... は観測できない
+    // Both resources load in parallel and finish at the same 200ms, so Loading... is never observed
     expect(text).not.toContain('Loading...');
     expect(text).toContain('Alice');
   });
 
-  it('(c) alias を付けたインプットには、型検査は通っても実行時にリソースが渡らない', async () => {
+  it('(c) an input with an alias receives no resource at runtime, even though the type check passes', async () => {
     setup([
       {
         path: 'aliased/:id',
@@ -61,13 +61,13 @@ describe('type-safe', () => {
     const navigation = harness.navigateByUrl('/aliased/1', Aliased);
     await vi.advanceTimersByTimeAsync(201);
     const component = await navigation;
-    // alias 'other' に対応するデータがないため、userResource には undefined が渡る
+    // No data matches the alias 'other', so undefined is passed to userResource
     expect(component.userResource()).toBeUndefined();
-    // alias を付けていない user は渡る
+    // The user input without an alias receives its value
     expect(component.user()).toEqual({ id: '1', name: 'Alice' });
   });
 
-  it('(d) 無関係なコンポーネントを指定した場合の実行時の挙動', async () => {
+  it('(d) runtime behavior when an unrelated component is specified', async () => {
     setup([{ ...routes[0], component: Unrelated, path: 'mismatch/:id' }]);
     const harness = await RouterTestingHarness.create();
     const navigation = harness.navigateByUrl('/mismatch/1').then(
@@ -75,7 +75,7 @@ describe('type-safe', () => {
       (e: unknown) => `rejected: ${e}`,
     );
     await vi.advanceTimersByTimeAsync(201);
-    // エラーにならず遷移し、リソースは使われないまま別のコンポーネントが表示される
+    // Navigation succeeds without error, and the other component is shown without using the resource
     expect(await navigation).toBe('resolved');
     expect(harness.routeNativeElement?.textContent).toBe('unrelated');
     expect(harness.routeDebugElement?.componentInstance).toBeInstanceOf(Unrelated);

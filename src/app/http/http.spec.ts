@@ -24,7 +24,7 @@ describe('http', () => {
     TestBed.inject(HttpTestingController).verify();
   });
 
-  it('/api/users/1 へリクエストし、Loading... の後に名前を表示する', async () => {
+  it('requests /api/users/1 and shows the name after Loading...', async () => {
     const http = TestBed.inject(HttpTestingController);
     const harness = await RouterTestingHarness.create();
     await harness.navigateByUrl('/http/users/1');
@@ -40,7 +40,7 @@ describe('http', () => {
     expect(text).toContain('ID: 1');
   });
 
-  it('/http/users/2 へ遷移すると /api/users/2 へ新しいリクエストを出す', async () => {
+  it('issues a new request to /api/users/2 when navigating to /http/users/2', async () => {
     const http = TestBed.inject(HttpTestingController);
     const harness = await RouterTestingHarness.create();
     await harness.navigateByUrl('/http/users/1');
