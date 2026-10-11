@@ -1,6 +1,6 @@
 # Angular Router Resources Sandbox
 
-A sample app that runs Router Resources, introduced in Angular v22.2, along the use cases of the blog post "Angular: Router Resources解説". Each use case has its own directory and its own path, and every path is linked from the top page.
+A sample app that shows Router Resources, introduced in Angular v22.2, through a set of use cases. Each use case has its own directory and its own path, and every path is linked from the top page.
 
 ## Getting started
 
@@ -14,11 +14,11 @@ npm test       # Vitest. Run once with: npx ng test --watch=false
 
 - `src/app/app.config.ts`: passes `withComponentInputBinding()` and `withRouterResources()` to `provideRouter`. The former binds resources to component inputs, and the latter enables `Route.resources`. `provideHttpClient()` is there for the `httpResource` example.
 - `src/app/app.routes.ts`: groups the routes of each use case under `children`.
-- `src/app/user.service.ts` and `src/app/post.service.ts`: in-memory mocks. Fetching a user waits 200ms and fetching posts waits 300ms before resolving the `Promise`. The delays match the numbers used in the blog post.
+- `src/app/user.service.ts` and `src/app/post.service.ts`: in-memory mocks. Fetching a user waits 200ms and fetching posts waits 300ms before resolving the `Promise`.
 
 ## Tour
 
-The use cases follow the order of the blog post. In each one, `*.routes.ts` declares the resources, the component shows how they are received, and `*.spec.ts` checks the behavior.
+In each use case, `*.routes.ts` declares the resources, the component shows how they are received, and `*.spec.ts` checks the behavior.
 
 ### 1. Blocking data fetching on navigation
 
