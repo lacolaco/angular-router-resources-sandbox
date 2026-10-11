@@ -21,7 +21,7 @@ describe('parallel', () => {
     vi.useRealTimers();
   });
 
-  it('親子のリソースが並列に解決され、300ms で遷移が完了する', async () => {
+  it('resolves parent and child resources in parallel and completes navigation at 300ms', async () => {
     const harness = await RouterTestingHarness.create();
     let done = false;
     const navigation = harness.navigateByUrl('/parallel/users/1').then(() => (done = true));
