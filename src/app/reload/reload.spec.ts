@@ -28,59 +28,56 @@ describe('reload', () => {
     vi.useRealTimers();
   });
 
-  function refreshButton(harness: RouterTestingHarness): HTMLButtonElement {
+  function inputs(harness: RouterTestingHarness): HTMLInputElement[] {
+    return Array.from((harness.routeNativeElement as HTMLElement).querySelectorAll('input'));
+  }
+
+  function saveButton(harness: RouterTestingHarness): HTMLButtonElement {
     return (harness.routeNativeElement as HTMLElement).querySelector('button')!;
   }
 
-  it('blocking: Refresh は NavigationStart を起こさず getUser を再実行し、表示を維持する', async () => {
-    const getUser = vi.spyOn(TestBed.inject(UserService), 'getUser');
-    const harness = await RouterTestingHarness.create();
-    const navigation = harness.navigateByUrl('/reload/blocking/users/1');
-    await vi.advanceTimersByTimeAsync(201);
-    await navigation;
-    harness.detectChanges();
-    expect(getUser).toHaveBeenCalledTimes(1);
+  function rename(harness: RouterTestingHarness, name: string) {
+    const input = inputs(harness)[0];
+    input.value = name;
+    saveButton(harness).click();
+  }
 
-    const starts: unknown[] = [];
-    TestBed.inject(Router).events.subscribe((e) => {
-      if (e instanceof NavigationStart) starts.push(e);
+  for (const variant of ['blocking', 'non-blocking']) {
+    it(`${variant}: Save は saveUser の完了後に getUsers を再実行し、NavigationStart を起こさずサーバー側の最新の一覧を表示する`, async () => {
+      const userService = TestBed.inject(UserService);
+      const getUsers = vi.spyOn(userService, 'getUsers');
+      const saveUser = vi.spyOn(userService, 'saveUser');
+      const harness = await RouterTestingHarness.create();
+      const navigation = harness.navigateByUrl(`/reload/${variant}/users`);
+      await vi.advanceTimersByTimeAsync(201);
+      await navigation;
+      harness.detectChanges();
+      expect(getUsers).toHaveBeenCalledTimes(1);
+      expect(inputs(harness).map((i) => i.value)).toEqual(['Alice', 'Bob', 'Alicia']);
+
+      // 一覧の表示とは別に、サーバー側で Bob の名前が変わっている
+      const serverSideUpdate = userService.saveUser({ id: '2', name: 'Robert' });
+      await vi.advanceTimersByTimeAsync(201);
+      await serverSideUpdate;
+      saveUser.mockClear();
+
+      const starts: unknown[] = [];
+      TestBed.inject(Router).events.subscribe((e) => {
+        if (e instanceof NavigationStart) starts.push(e);
+      });
+
+      rename(harness, 'Alice Updated');
+      await vi.advanceTimersByTimeAsync(0);
+      expect(saveUser).toHaveBeenCalledWith({ id: '1', name: 'Alice Updated' });
+      expect(getUsers).toHaveBeenCalledTimes(1);
+
+      await vi.advanceTimersByTimeAsync(201);
+      expect(getUsers).toHaveBeenCalledTimes(2);
+
+      await vi.advanceTimersByTimeAsync(201);
+      harness.detectChanges();
+      expect(inputs(harness).map((i) => i.value)).toEqual(['Alice Updated', 'Robert', 'Alicia']);
+      expect(starts).toHaveLength(0);
     });
-
-    refreshButton(harness).click();
-    await vi.advanceTimersByTimeAsync(0);
-    expect(getUser).toHaveBeenCalledTimes(2);
-    expect(harness.routeNativeElement?.textContent).toContain('Alice');
-
-    await vi.advanceTimersByTimeAsync(201);
-    harness.detectChanges();
-    expect(harness.routeNativeElement?.textContent).toContain('Alice');
-    expect(starts).toHaveLength(0);
-  });
-
-  it('non-blocking: Refresh は NavigationStart を起こさず getUser を再実行し、Loading... から戻る', async () => {
-    const getUser = vi.spyOn(TestBed.inject(UserService), 'getUser');
-    const harness = await RouterTestingHarness.create();
-    await harness.navigateByUrl('/reload/non-blocking/users/1');
-    await vi.advanceTimersByTimeAsync(201);
-    harness.detectChanges();
-    expect(getUser).toHaveBeenCalledTimes(1);
-    expect(harness.routeNativeElement?.textContent).toContain('Alice');
-
-    const starts: unknown[] = [];
-    TestBed.inject(Router).events.subscribe((e) => {
-      if (e instanceof NavigationStart) starts.push(e);
-    });
-
-    refreshButton(harness).click();
-    await vi.advanceTimersByTimeAsync(0);
-    harness.detectChanges();
-    expect(getUser).toHaveBeenCalledTimes(2);
-    expect(harness.routeNativeElement?.textContent).toContain('Loading...');
-
-    await vi.advanceTimersByTimeAsync(201);
-    harness.detectChanges();
-    expect(harness.routeNativeElement?.textContent).not.toContain('Loading...');
-    expect(harness.routeNativeElement?.textContent).toContain('Alice');
-    expect(starts).toHaveLength(0);
-  });
+  }
 });
