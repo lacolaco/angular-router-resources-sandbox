@@ -1,12 +1,9 @@
 import { Component, input, Resource } from '@angular/core';
 import { User } from '../user.service';
 
-type RouterResource<T> = Resource<T> & { reload(): boolean };
-
 @Component({
   template: `
     @let res = userResource();
-    <button (click)="res.reload()" [disabled]="res.isLoading()">Refresh</button>
     @if (res.isLoading()) {
       <p>Loading...</p>
     } @else if (res.error()) {
@@ -17,6 +14,6 @@ type RouterResource<T> = Resource<T> & { reload(): boolean };
     }
   `,
 })
-export class NonBlockingUserProfile {
-  readonly userResource = input.required<RouterResource<User | undefined>>();
+export class UserProfile {
+  readonly userResource = input.required<Resource<User | undefined>>();
 }
