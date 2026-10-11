@@ -40,6 +40,6 @@ The app uses standalone components only, with no NgModules, and runs zoneless.
 - `src/main.ts` bootstraps with `bootstrapApplication(App, appConfig)`.
 - `src/app/app.config.ts` is where the router is configured. Pass router features (`with*` functions) to `provideRouter` here.
 - `src/app/app.routes.ts` mounts each use case under `children`.
-- Each use case in the blog post has its own directory under `src/app/` (`blocking`, `non-blocking`, `parallel`, `reload`, `search`, `http`, `type-safe`), with a `*.routes.ts`, its components, and a `*.spec.ts` that checks the behavior with `RouterTestingHarness`.
+- Each use case in the blog post has its own directory under `src/app/` (`blocking`, `non-blocking`, `parallel`, `reload`, `search`, `http`, `type-safe`), with a `*.routes.ts`, its components, and `*.spec.ts` files that check the behavior.
 - `src/app/user.service.ts` and `src/app/post.service.ts` are in-memory mocks whose delays (200ms and 300ms) match the numbers in the blog post.
-- `src/app/app.html` links to every use case. When you add a use case, add a link here and a section to the README tour.
+- `src/app/app.html` links to every use case. When you add a use case, add a link here.
