@@ -1,4 +1,5 @@
 import { inject, resource } from '@angular/core';
+import { nonBlocking } from '@angular/router';
 import type { ResourceContext } from '@angular/router';
 import type { ResourceInputs, RouterResource } from './router-resource.types';
 import { UserService } from '../user.service';
@@ -14,17 +15,23 @@ interface UserProfileNonBlockingResources {
   userResource: UserResource;
 }
 
-export type UserProfileResources = UserProfileBlockingResources & UserProfileNonBlockingResources;
+type UserProfileResources = UserProfileBlockingResources & UserProfileNonBlockingResources;
 
 export type UserProfileResourceInputs = ResourceInputs<
   UserProfileBlockingResources,
   UserProfileNonBlockingResources
 >;
 
-export const userResource = (ctx: ResourceContext) => {
+const userResource = (ctx: ResourceContext) => {
   const userService = inject(UserService);
   return resource({
     params: () => ctx.params()['id'] as string,
     loader: ({ params: id }) => userService.getUser(id),
   });
 };
+
+export const userProfileResources = (ctx: ResourceContext) =>
+  ({
+    user: userResource(ctx),
+    userResource: nonBlocking(userResource(ctx)),
+  }) satisfies UserProfileResources;

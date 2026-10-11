@@ -1,28 +1,21 @@
 import { Component, input } from '@angular/core';
-import { nonBlocking } from '@angular/router';
 import type { Routes } from '@angular/router';
-import { userResource } from './user-profile.resources';
-import type {
-  UserProfileResourceInputs,
-  UserProfileResources,
-  UserResource,
-} from './user-profile.resources';
+import { userProfileResources } from './user-profile.resources';
+import type { UserProfileResourceInputs, UserResource } from './user-profile.resources';
 import type { User } from '../user.service';
 
 // このファイルは型検査のためのケースを並べる。ケースは実行しない。
 
-// (a) ルート側のリソース名を間違えると satisfies がエラーにする
-export const wrongRouteName: Routes = [
-  {
-    path: 'a',
-    resources: (ctx) =>
-      ({
-        user: userResource(ctx),
-        // @ts-expect-error `userResource` ではなく `userResrouce` と綴りを間違えている
-        userResrouce: nonBlocking(userResource(ctx)),
-      }) satisfies UserProfileResources,
-  },
-];
+// (a) リソース宣言の名前を間違えると satisfies がエラーにする
+// 宣言型は export されていないので、インプット型のキーから同じ形の型を組み立てる
+type DeclaredResources = { [K in keyof UserProfileResourceInputs]: UserResource };
+
+export const misspelledResources = (user: UserResource) =>
+  ({
+    user,
+    // @ts-expect-error `userResource` ではなく `userResrouce` と綴りを間違えている
+    userResrouce: user,
+  }) satisfies DeclaredResources;
 
 // (b) コンポーネント側の不一致は implements がエラーにする
 @Component({ template: '' })
@@ -52,7 +45,7 @@ export class Aliased implements UserProfileResourceInputs {
   readonly userResource = input.required<UserResource>({ alias: 'other' });
 }
 
-// (d) satisfies UserProfileResources のルートに別のコンポーネントを指定しても通る (検出できない)
+// (d) userProfileResources を使うルートに別のコンポーネントを指定しても通る (検出できない)
 @Component({ template: '' })
 export class Unrelated {}
 
@@ -60,14 +53,10 @@ export const mismatchedComponent: Routes = [
   {
     path: 'd',
     component: Unrelated,
-    resources: (ctx) =>
-      ({
-        user: userResource(ctx),
-        userResource: nonBlocking(userResource(ctx)),
-      }) satisfies UserProfileResources,
+    resources: userProfileResources,
   },
 ];
 
 it('型検査のケースを読み込める', () => {
-  expect(wrongRouteName).toBeDefined();
+  expect(misspelledResources).toBeDefined();
 });
