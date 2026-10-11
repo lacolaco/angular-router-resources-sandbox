@@ -47,7 +47,7 @@ In each use case, `*.routes.ts` declares the resources, the component shows how 
 - Read: `src/app/reload/`
 - Edit a name in the user list and press Save. After saving completes, the component calls `reload()` on the list resource. No navigation happens.
 - The blocking list (`blocking-user-list.ts`) only receives the fetched value through its input, so it gets the resource from `inject(ActivatedRoute).resources?.['users']`.
-- The non-blocking list (`non-blocking-user-list.ts`) calls `reload()` on the resource it receives as an input. The type with `reload` is not public, so it defines its own `RouterResource<T>`.
+- The non-blocking list (`non-blocking-user-list.ts`) calls `reload()` on the resource it receives as an input. The type with `reload` is not public, so it defines its own `RouteResource<T>`.
 - The test renames another user on the server side only before saving, and checks that the new name shows up in the list after saving. This proves that the list was fetched again.
 
 ### 5. Reactive data fetching driven by query parameters

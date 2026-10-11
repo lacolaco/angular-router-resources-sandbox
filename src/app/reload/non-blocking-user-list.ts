@@ -1,7 +1,7 @@
 import { Component, inject, input, Resource } from '@angular/core';
 import { User, UserService } from '../user.service';
 
-type RouterResource<T> = Resource<T> & { reload(): boolean };
+type RouteResource<T> = Resource<T> & { reload(): boolean };
 
 @Component({
   template: `
@@ -19,7 +19,7 @@ type RouterResource<T> = Resource<T> & { reload(): boolean };
   `,
 })
 export class NonBlockingUserList {
-  readonly usersResource = input.required<RouterResource<User[] | undefined>>();
+  readonly usersResource = input.required<RouteResource<User[] | undefined>>();
   private readonly userService = inject(UserService);
 
   async saveUser(user: User, name: string) {
