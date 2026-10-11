@@ -1,11 +1,11 @@
 import { inject, resource } from '@angular/core';
 import { nonBlocking } from '@angular/router';
 import type { ResourceContext } from '@angular/router';
-import type { ResourceInputs, RouterResource } from './router-resource.types';
+import type { ResourceInputs, RouteResource } from './router-resource.types';
 import { UserService } from '../user.service';
 import type { User } from '../user.service';
 
-export type UserResource = RouterResource<User | undefined>;
+export type UserResource = RouteResource<User | undefined>;
 
 interface UserProfileBlockingResources {
   user: UserResource;

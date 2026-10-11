@@ -1,6 +1,6 @@
 import type { InputSignal, Resource } from '@angular/core';
 
-export type RouterResource<T> = Resource<T> & { reload(): boolean };
+export type RouteResource<T> = Resource<T> & { reload(): boolean };
 
 export type ResourceInputs<
   Blocking extends { [K in keyof Blocking]: Resource<unknown> },
