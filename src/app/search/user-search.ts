@@ -1,12 +1,13 @@
-import { Component, input, Resource } from '@angular/core';
+import { Component, input, linkedSignal, Resource } from '@angular/core';
+import { form, FormField } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import { User } from '../user.service';
 
 @Component({
-  imports: [RouterLink],
+  imports: [RouterLink, FormField],
   template: `
-    <input #query type="search" [value]="q() ?? ''" (input)="(0)" />
-    <button [routerLink]="[]" [queryParams]="{ q: query.value }">Search</button>
+    <input type="search" [formField]="searchForm.q" />
+    <button [routerLink]="[]" [queryParams]="{ q: searchForm.q().value() }">Search</button>
 
     @let res = usersResource();
     @if (res.isLoading()) {
@@ -22,5 +23,6 @@ import { User } from '../user.service';
 })
 export class UserSearch {
   readonly q = input<string>();
+  readonly searchForm = form(linkedSignal(() => ({ q: this.q() ?? '' })));
   readonly usersResource = input.required<Resource<User[] | undefined>>();
 }
